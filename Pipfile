@@ -12,6 +12,7 @@ xarray = "*"
 
 [dev-packages]
 pytest = "*"
+twine = "*"
 
 [requires]
 python_version = "3.8"
