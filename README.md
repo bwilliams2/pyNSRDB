@@ -29,6 +29,7 @@ MAILING_LIST=true
 
 The simplest requests can be made for single longitude, latitude points.
 
+```jupyter
 >>> from pyNSRDB.requests import PSM_TMY_request
 >>> location = (-93.1567288182409, 45.15793882400205)
 >>> data = PSM_TMY_request(location)
@@ -39,9 +40,11 @@ The simplest requests can be made for single longitude, latitude points.
 2  2004      1    1     2      30      -13.0    0    0    0            0.87       980         -9.0             135         3.3
 3  2004      1    1     3      30      -13.0    0    0    0            0.87       980         -9.0             130         3.7
 4  2004      1    1     4      30      -12.0    0    0    0            0.87       980         -8.0             120         4.0
+```
 
 More complicated geographical locations can be constructed using the [`shapely`](https://shapely.readthedocs.io/en/stable/manual.html) library to define WKT-compatible geometric shapes.
 
+```jupyter
 >>> from shapely.geometry import MultiPoint
 >>> location = MultiPoint(((-90, 45), (-88, 43)))
 >>> data = PSM_TMY_request(location)
@@ -52,6 +55,7 @@ More complicated geographical locations can be constructed using the [`shapely`]
 2  2008      1    1     2      30      -17.0    0    0    0            0.87       960        -15.0             316         4.3
 3  2008      1    1     3      30      -18.0    0    0    0            0.87       960        -16.0             316         4.4
 4  2008      1    1     4      30      -19.0    0    0    0            0.87       960        -17.0             316         4.5
+```
 
 ## Additional information on NSRDB
 
