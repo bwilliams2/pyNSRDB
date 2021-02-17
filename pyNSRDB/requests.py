@@ -1,5 +1,3 @@
-from pyNSRDB.response import process_response
-from pyNSRDB.data import process_zip_file
 from typing import Union, Tuple, Optional, List, Dict, Any, Optional
 import requests
 from pathlib import Path
@@ -8,6 +6,7 @@ from shapely.geometry import Point, MultiPoint, Polygon
 import pandas as pd
 
 from .credentials import get_user_credentials
+from .response import process_response
 
 ALLOWED_ATTRIBUTES = ["dhi", "dni", "ghi", "dew_point", "air_temperature", "surface_pressure", "wind_direction", "wind_speed", "surface_albedo"]
 

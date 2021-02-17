@@ -5,8 +5,6 @@ import io
 import time
 import zipfile
 
-import pandas as pd
-
 from .data import create_df, process_zip_file
 
 
