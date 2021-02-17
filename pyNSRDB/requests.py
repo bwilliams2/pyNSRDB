@@ -1,12 +1,7 @@
 from pyNSRDB.response import process_response
 from pyNSRDB.data import process_zip_file
 from typing import Union, Tuple, Optional, List, Dict, Any, Optional
-import zipfile
-import tempfile
-import logging
 import requests
-import json
-import io
 from pathlib import Path
 
 from shapely.geometry import Point, MultiPoint, Polygon
@@ -197,7 +192,7 @@ def PSM_TMY_request(
 ) -> Union[pd.DataFrame, Dict[str, Any], None]:
     """Submits TMY data request for given location(s).
     
-    Allowed attributes: "dhi", "dni", "ghi", "dew_point", "air_temperature", "surface_pressure", "wind_direction", "wind_speed", "surface_albedo"
+    Allowed attributes: dhi, dni, ghi, dew_point, air_temperature, surface_pressure, wind_direction, wind_speed, surface_albedo
 
     Args:
         location (Union[Tuple[float, float], Point, MultiPoint, Polygon]): Location to request data for.
