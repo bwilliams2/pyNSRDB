@@ -14,7 +14,7 @@ For requests to the NSRDB, you must obtain a personal API key from https://devel
 The API key must be included with each request submitted through pyNSRDB.
 You can supply the API key and email with each pyNSRDB request function or set-up an .pyNSRDB credential file that is automatically included with requests.
 
-The credential file should be placed in the user's home directory (e.g. C:\Users\%USERNAME%\.pyNRSDB for Windows and \home\%USERNAME% for Linux, Mac)
+The credential file should be placed in the user's home directory (e.g. C:\Users\%USERNAME%\\.pyNRSDB for Windows and \home\%USERNAME%\\.pyNSRDB for Linux, Mac)
 Entries for API_KEY and EMAIL are required, but all entires are encouraged
 
 ```
@@ -65,4 +65,5 @@ NSRDB Site: https://nsrdb.nrel.gov/
 NSRDB API Documentation: https://nsrdb.nrel.gov/data-sets/api-instructions.html
 
 References:
-[1] M. Sengupta, Y. Xie, A. Lopez, A. Habte, G. Maclaurin, and J. Shelby, “The National Solar Radiation Data Base (NSRDB),” Renewable and Sustainable Energy Reviews, vol. 89, pp. 51–60, Jun. 2018, doi: 10.1016/j.rser.2018.03.003.
+
+[1] M. Sengupta, Y. Xie, A. Lopez, A. Habte, G. Maclaurin, and J. Shelby, “The National Solar Radiation Data Base (NSRDB),” Renewable and Sustainable Energy Reviews, vol. 89, pp. 51–60, Jun. 2018, doi: [10.1016/j.rser.2018.03.003.](https://doi.org/10.1016/j.rser.2018.03.003)
