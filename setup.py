@@ -5,10 +5,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pyNSRDB",
-    version="0.0.3",
+    version="0.0.4",
     author="Bryce Williams",
     author_email="bwilliams2@gmail.com",
-    description="Python frontend to NREL NRSDB API.",
+    description="Python frontend to NREL NSRDB API.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/bwilliams2/pyNSRDB",

@@ -1,5 +1,5 @@
 # pyNRSDB
-Community-created functional Python interface for the [National Solar Radiation Database](https://nsrdb.nrel.gov/) (NSRDB) API made created and supported by [National Renewable Energy Laboratory](https://www.nrel.gov/) (NREL).
+Community-created functional Python interface for the [National Solar Radiation Database](https://nsrdb.nrel.gov/) (NSRDB) API from the [National Renewable Energy Laboratory](https://www.nrel.gov/) (NREL).
 
 Simplifies requests to API and automates processing of response data in CSV and Zip file formats.
 
@@ -19,6 +19,7 @@ Entries for API_KEY and EMAIL are required, but all entires are encouraged
 
 ```
 API_KEY=%YOURAPIKEY%
+FULL_NAME=%YOURNAME%
 EMAIL=%YOUREMAIL%
 AFFILIATION=%AFFILIATION%
 REASON=%REASONFORUSE%
