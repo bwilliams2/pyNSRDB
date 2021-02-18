@@ -1,6 +1,6 @@
 import setuptools
 
-INSTALL_REQUIRES=["pandas>=1.2", "shapely>=1.6", "python-dotenv"]
+INSTALL_REQUIRES = ["pandas>=1.2", "shapely>=1.6", "python-dotenv"]
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
@@ -21,5 +21,5 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.6',
+    python_requires=">=3.6",
 )
