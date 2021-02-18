@@ -7,7 +7,7 @@ import time
 from .data import _create_df, _process_download_url
 
 
-def process_response(
+def _process_response(
     response: requests.Response, base_url: str, timeout: int = 60
 ):
     """[summary]
@@ -43,8 +43,7 @@ def process_response(
                         else:
                             time.sleep(5)
                             elapsed_time += time.perf_counter() - start
-            else:
-                return response_data
+            return response_data
         else:
             file_io = io.StringIO(response.text)
             return _create_df(file_io)

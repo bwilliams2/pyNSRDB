@@ -3,7 +3,7 @@ from pathlib import Path
 from dotenv.main import dotenv_values
 
 
-def get_user_credentials(
+def _get_user_credentials(
     api_key: Optional[str] = None,
     full_name: Optional[str] = None,
     affiliation: Optional[str] = None,
@@ -52,8 +52,15 @@ def get_user_credentials(
 
     # Provided items take precedent over config file?
     items = zip(
-        ["api_key", "full_name", "affiliation", "reason", "mailing_list"],
-        [api_key, full_name, affiliation, reason, mailing_list],
+        [
+            "api_key",
+            "full_name",
+            "email",
+            "affiliation",
+            "reason",
+            "mailing_list",
+        ],
+        [api_key, full_name, email, affiliation, reason, mailing_list],
     )
     user_config.update({k: v for k, v in items if v is not None})
     return user_config
