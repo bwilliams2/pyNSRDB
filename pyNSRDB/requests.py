@@ -75,7 +75,6 @@ def _assemble_query_params(
     names: Optional[Union[str, List[int]]] = "tmy",
     allowed_names: Optional[List[str]] = None,
     one_allowed_names: bool = False,
-    utc: bool = False,
     api_key: Optional[str] = None,
     full_name: Optional[str] = None,
     affiliation: Optional[str] = None,
@@ -281,13 +280,13 @@ def PSM_request(
         names,
         ALLOWED_NAMES,
         False,
-        utc,
         api_key,
         full_name,
         affiliation,
         email,
         reason,
         mailing_list,
+        utc=utc,
         leap_day=leap_day,
         interval=interval,
     )
@@ -393,13 +392,13 @@ def PSM_TMY_request(
         names,
         ALLOWED_NAMES,
         True,
-        utc,
         api_key,
         full_name,
         affiliation,
         email,
         reason,
         mailing_list,
+        utc=utc,
     )
 
     base_url = _parse_base_url(URL, query_params["wkt"], query_params["names"])
@@ -509,18 +508,132 @@ def PSM_temporal_request(
         names,
         ALLOWED_NAMES,
         False,
-        utc,
         api_key,
         full_name,
         affiliation,
         email,
         reason,
         mailing_list,
+        utc=utc,
         leap_day=leap_day,
         interval=interval,
     )
 
     base_url = _parse_base_url(URL, query_params["wkt"], query_params["names"])
+
+    response = requests.get(base_url, params=query_params)
+    return _process_response(response, base_url, timeout)
+
+
+def PSM_spectral_request(
+    location: Union[Tuple[float, float], Point, MultiPoint, Polygon],
+    names: Union[str, int, List[Union[str, int]]] = None,
+    equipment: str = "fixed_tilt",
+    tilt: float = 45.0,
+    angle: float = 180.0,
+    api_key: str = None,
+    full_name: str = None,
+    affiliation: str = None,
+    email: str = None,
+    reason: str = None,
+    mailing_list: bool = None,
+    output_dir: Union[str, Path] = None,
+    timeout: int = 60,
+) -> Union[pd.DataFrame, Dict[str, Any], None]:
+    """Submits Physical Solar Model v3 Five Minute Temporal Resolution data
+        request for given location(s).
+
+        Allowed attributes:
+            air_temperature, clearsky_dhi, clearsky_dni, clearsky_ghi,
+            cloud_type, dew_point, dhi, dni, fill_flag, ghi, relative_humidity,
+            solar_zenith_angle, surface_albedo, surface_pressure,
+            total_precipitable_water, wind_direction, wind_speed
+
+        Allowed names:
+            2018, 2019
+
+    Args:
+        location (Union[Tuple[float, float], Point, MultiPoint, Polygon]):
+            Location to request data for.
+        attributes (Optional[Union[str, List[str]]], optional): Attributes to
+            request data for. Defaults to None.
+        names (Union[str, int, List[Union[str, int]]], optional): Year(s) to
+            request PSM V3 data for. If None, selects most recent year.
+            Defaults to None.
+        utc (bool, optional): If true, convert timestamps to UTC. Defaults to
+            False.
+        leap_day (bool, optional): If true, data includes leap_day.
+        interval (int, optional): Returns 30 or 60 min interval data. Allowed
+            values of 5, 15, 30 and 60. Defaults to 5.
+        api_key (Optional[str], optional): User's api key to send with request.
+            Credential file takes precedence. Defaults to None.
+        full_name (Optional[str], optional): User's full name to send with
+            request. Credential file takes precedence. Defaults to None.
+        affiliation (Optional[str], optional): User's affiliation to send with
+            request. Credential file takes precedence. Defaults to None.
+        email (Optional[str], optional): User's email to send with request.
+            Credential file takes precedence. Defaults to None.
+        reason (Optional[str], optional): Reason for request. Defaults to None.
+        mailing_list (Optional[bool], optional): If True, user is added to NREL
+            NSRDB mailing list. Defaults to None.
+        output_dir (Union[str, List[str]], optional): Output directory to save
+            returned data. Defaults to None.
+        timeout (int): Time to wait for valid download URL. Used only for
+            requests that need file generation. Defaults to 60.
+
+    Returns:
+        Union[pd.DataFrame, Dict[str, Any], str]: If direct download is
+            possible, pandas DataFrame populated with data is returned. In all
+            other cases, response message from NSRDB API is returned
+            as dictionary or string.
+
+    See Also:
+        https://developer.nrel.gov/docs/solar/nsrdb/dynamic_spectral_data_download/
+    """
+    ALLOWED_NAMES = [str(year) for year in range(1998, 2017)]
+
+    if names is None:
+        names = ALLOWED_NAMES[-1]
+
+    URL = (
+        "https://developer.nrel.gov/api/nsrdb_api/solar/"
+        "spectral_ondemand_download.json"
+    )
+
+    if equipment not in ["fixed_tilt", "one_axis"]:
+        raise ValueError("`equipment` must be fixed_tilt or one_axis.")
+
+    if equipment == "fixed_tilt":
+        if not isinstance(tilt, (int, float)) or tilt > 90 or tilt < 0:
+            raise ValueError("`tilt` must be between 0 and 90.")
+        if not isinstance(angle, (float, int)) or angle > 359.9 or angle < 0:
+            raise ValueError("`angle` must be between 0 and 359.9")
+    else:
+        tilt = None
+        angle = None
+
+    # Assemble params
+    query_params = _assemble_query_params(
+        location,
+        None,
+        None,
+        False,
+        names,
+        ALLOWED_NAMES,
+        False,
+        None,
+        api_key,
+        full_name,
+        affiliation,
+        email,
+        reason,
+        mailing_list,
+        equipment=equipment,
+        tilt=tilt,
+        angle=angle,
+    )
+
+    base_url = URL
 
     response = requests.get(base_url, params=query_params)
     return _process_response(response, base_url, timeout)
