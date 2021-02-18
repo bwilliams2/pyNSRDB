@@ -13,6 +13,12 @@ xarray = "*"
 [dev-packages]
 pytest = "*"
 twine = "*"
+pre-commit = "*"
+pyflakes = "*"
+pycodestyle = "*"
+flake8-docstrings = "*"
+flake8-bandit = "*"
+flake8-comprehensions = "*"
 
 [requires]
 python_version = "3.8"

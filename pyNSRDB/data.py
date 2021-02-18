@@ -1,6 +1,7 @@
 from typing import Union
 import pandas as pd
 import zipfile
+import requests
 import io
 
 
@@ -10,6 +11,7 @@ def create_df(input: Union[io.BytesIO, io.StringIO]):
     df = pd.read_csv(input, skiprows=[0, 1])
     df.attrs = header
     return df
+
 
 def process_zip_file(zf: zipfile.ZipFile):
     dfs = []
@@ -22,5 +24,12 @@ def process_zip_file(zf: zipfile.ZipFile):
         dfs.append(df)
     combined = pd.concat(dfs, ignore_index=True)
     combined.attrs = attrs
-    return combined   
+    return combined
 
+
+def process_download_url(download_url):
+    data = requests.get(download_url)
+    zipped = io.BytesIO(data.content)
+    with zipfile.ZipFile(zipped) as zf:
+        df = process_zip_file(zf)
+    return df
