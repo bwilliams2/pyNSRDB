@@ -4,7 +4,7 @@ import json
 import io
 import time
 
-from .data import create_df, process_download_url
+from .data import _create_df, _process_download_url
 
 
 def process_response(
@@ -29,10 +29,11 @@ def process_response(
             response_data = json.loads(response.text)
             if response_data["outputs"].get("downloadUrl", False):
                 start = time.perf_counter()
+                download_url = response_data["outputs"]["downloadUrl"]
                 elapsed_time = 0
                 while elapsed_time < timeout:
                     try:
-                        return process_download_url
+                        return _process_download_url(download_url)
                     except Exception as e:  # noqa: F841 Add specific handling
                         if elapsed_time > timeout:
                             logging.info(
@@ -46,7 +47,7 @@ def process_response(
                 return response_data
         else:
             file_io = io.StringIO(response.text)
-            return create_df(file_io)
+            return _create_df(file_io)
     else:
         logging.warning("NSRDB request returned an error.")
         try:
