@@ -1,7 +1,6 @@
 from typing import Union, Tuple, Optional, List, Dict, Any
 import requests
 import json
-from pathlib import Path
 
 from shapely.geometry import Point, MultiPoint, Polygon
 import pandas as pd
@@ -190,7 +189,6 @@ def PSM_request(
     email: str = None,
     reason: str = None,
     mailing_list: bool = None,
-    output_dir: Union[str, Path] = None,
     timeout: int = 60,
 ) -> Union[pd.DataFrame, Dict[str, Any], None]:
     """Submits Physical Solar Model v3 data request for given location(s).
@@ -230,8 +228,6 @@ def PSM_request(
         reason (Optional[str], optional): Reason for request. Defaults to None.
         mailing_list (Optional[bool], optional): If True, user is added to NREL
             NSRDB mailing list. Defaults to None.
-        output_dir (Union[str, List[str]], optional): Output directory to save
-            returned data. Defaults to None.
         timeout (int): Time to wait for valid download URL. Used only for
             requests that need file generation. Defaults to 60.
 
@@ -309,7 +305,6 @@ def PSM_TMY_request(
     email: Optional[str] = None,
     reason: Optional[str] = None,
     mailing_list: Optional[bool] = None,
-    output_dir: Optional[Union[str, Path]] = None,
     timeout: int = 60,
 ) -> Union[pd.DataFrame, Dict[str, Any], None]:
     """Submits TMY data request for given location(s).
@@ -342,8 +337,6 @@ def PSM_TMY_request(
         reason (Optional[str], optional): Reason for request. Defaults to None.
         mailing_list (Optional[bool], optional): If True, user is added to
             NREL NSRDB mailing list. Defaults to None.
-        output_dir (Union[str, List[str]], optional): Output directory to save
-            returned data. Defaults to None.
         timeout (int): Time to wait for valid download URL. Used only for
             requests that need file generation. Defaults to 60.
 
@@ -421,7 +414,6 @@ def PSM_temporal_request(
     email: Optional[str] = None,
     reason: Optional[str] = None,
     mailing_list: Optional[bool] = None,
-    output_dir: Optional[Union[str, Path]] = None,
     timeout: int = 60,
 ) -> Union[pd.DataFrame, Dict[str, Any], None]:
     """Submits Physical Solar Model v3 Five Minute Temporal Resolution data
@@ -460,8 +452,6 @@ def PSM_temporal_request(
         reason (Optional[str], optional): Reason for request. Defaults to None.
         mailing_list (Optional[bool], optional): If True, user is added to NREL
             NSRDB mailing list. Defaults to None.
-        output_dir (Union[str, List[str]], optional): Output directory to save
-            returned data. Defaults to None.
         timeout (int): Time to wait for valid download URL. Used only for
             requests that need file generation. Defaults to 60.
 
