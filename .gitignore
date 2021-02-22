@@ -1,6 +1,7 @@
 # Development
 .vscode/
 .idea/
+devel/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
