@@ -20,7 +20,7 @@ def _process_zip_file(zf: zipfile.ZipFile):
         file_io = io.BytesIO(zf.read(file))
         df = _create_df(file_io)
         df.attrs["filename"] = file
-        attrs[file.filename] = df.attrs
+        attrs[file.filename.split("/")[-1]] = df.attrs
         dfs.append(df)
     combined = pd.concat(dfs, ignore_index=True)
     combined.attrs = attrs

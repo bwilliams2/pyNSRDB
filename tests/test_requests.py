@@ -1,6 +1,7 @@
 import logging
 
 import pytest
+import numpy as np
 import pandas as pd
 from shapely.geometry import MultiPoint, Polygon
 
@@ -9,6 +10,7 @@ from pyNSRDB.requests import (
     PSM_TMY_request,
     PSM_request,
     PSM_temporal_request,
+    PSM_spectral_request,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -174,3 +176,19 @@ def test_PSM_temporal_request_Polygon(caplog):
         data = PSM_temporal_request(poly_location, timeout=120)
     assert "File generation" in caplog.text
     assert isinstance(data, pd.DataFrame)
+
+
+def test_PSM_spectral_request():
+    location = (-93.15, 45.15)
+    data = PSM_spectral_request(location)
+    assert isinstance(data, dict)
+    assert "inputs" in data
+
+
+def test_PSM_spectral_request_output(tmp_path):
+    output = tmp_path / "data"
+    output.mkdir()
+    location = [np.random.uniform(-93, -94), np.random.uniform(30, 46)]
+    PSM_spectral_request(location, timeout=10, output_dir=output)
+    files = list(output.glob("*.json"))
+    assert len(files) == 1

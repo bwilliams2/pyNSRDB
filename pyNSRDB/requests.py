@@ -1,6 +1,7 @@
 from typing import Union, Tuple, Optional, List, Dict, Any
 import requests
 import json
+from pathlib import Path
 
 from shapely.geometry import Point, MultiPoint, Polygon
 import pandas as pd
@@ -117,10 +118,10 @@ def _assemble_query_params(
 def _parse_base_url(url: str, wkt: str, names: str):
     """Selects appropriate download request url based on WKT location string"""
     # CSV allowed for single point location and single name/year
-    if "POINT" == wkt[:5] and len(names.split(",")) == 0:
-        return f"{url}.csv"
-    else:
-        return f"{url}.json"
+    # if "POINT" == wkt[:5] and len(names.split(",")) == 0:
+    #     return f"{url}.csv"
+    # else:
+    return f"{url}.json"
 
 
 def NSRDB_data_query(
@@ -182,6 +183,7 @@ def PSM_request(
     utc: bool = False,
     leap_day: bool = False,
     interval: int = 60,
+    output_dir: Union[str, Path] = None,
     api_key: str = None,
     full_name: str = None,
     affiliation: str = None,
@@ -216,6 +218,8 @@ def PSM_request(
         leap_day (bool, optional): If true, data includes leap_day.
         interval (int, optional): Returns 30 or 60 min interval data. Allowed
             values of 30 and 60.
+        output_dir (Union[str, List[str]], optional): Output directory to save
+            returned data. Defaults to None.
         api_key (Optional[str], optional): User's api key to send with request.
             Credential file takes precedence. Defaults to None.
         full_name (Optional[str], optional): User's full name to send with
@@ -290,7 +294,9 @@ def PSM_request(
     base_url = _parse_base_url(URL, query_params["wkt"], query_params["names"])
 
     response = requests.get(base_url, params=query_params)
-    return _process_response(response, base_url, timeout)
+    return _process_response(
+        response, base_url, timeout=timeout, output_dir=output_dir
+    )
 
 
 def PSM_TMY_request(
@@ -298,6 +304,7 @@ def PSM_TMY_request(
     attributes: Optional[Union[str, List[str]]] = None,
     names: str = "tmy",
     utc: bool = False,
+    output_dir: Union[str, Path] = None,
     api_key: Optional[str] = None,
     full_name: Optional[str] = None,
     affiliation: Optional[str] = None,
@@ -325,6 +332,8 @@ def PSM_TMY_request(
             "tmy".
         utc (bool, optional): If true, convert timestamps to UTC.
             Defaults to False.
+        output_dir (Union[str, List[str]], optional): Output directory to save
+            returned data. Defaults to None.
         api_key (Optional[str], optional): User's api key to send with request.
             Credential file takes precedence. Defaults to None.
         full_name (Optional[str], optional): User's full name to send with
@@ -397,7 +406,9 @@ def PSM_TMY_request(
     base_url = _parse_base_url(URL, query_params["wkt"], query_params["names"])
 
     response = requests.get(base_url, params=query_params)
-    return _process_response(response, base_url, timeout)
+    return _process_response(
+        response, base_url, timeout=timeout, output_dir=output_dir
+    )
 
 
 def PSM_temporal_request(
@@ -407,6 +418,7 @@ def PSM_temporal_request(
     utc: bool = False,
     leap_day: bool = False,
     interval: int = 5,
+    output_dir: Union[str, Path] = None,
     api_key: Optional[str] = None,
     full_name: Optional[str] = None,
     affiliation: Optional[str] = None,
@@ -440,6 +452,8 @@ def PSM_temporal_request(
         leap_day (bool, optional): If true, data includes leap_day.
         interval (int, optional): Returns 30 or 60 min interval data. Allowed
             values of 5, 15, 30 and 60. Defaults to 5.
+        output_dir (Union[str, List[str]], optional): Output directory to save
+            returned data. Defaults to None.
         api_key (Optional[str], optional): User's api key to send with request.
             Credential file takes precedence. Defaults to None.
         full_name (Optional[str], optional): User's full name to send with
@@ -512,32 +526,31 @@ def PSM_temporal_request(
     base_url = _parse_base_url(URL, query_params["wkt"], query_params["names"])
 
     response = requests.get(base_url, params=query_params)
-    return _process_response(response, base_url, timeout)
+    return _process_response(
+        response, base_url, timeout=timeout, output_dir=output_dir
+    )
 
 
 def PSM_spectral_request(
     location: Union[Tuple[float, float], Point, MultiPoint, Polygon],
     names: Union[str, int, List[Union[str, int]]] = None,
     equipment: str = "fixed_tilt",
-    tilt: float = 45.0,
-    angle: float = 180.0,
+    tilt: int = 45,
+    angle: int = 180,
+    output_dir: Union[str, Path] = None,
     api_key: str = None,
     full_name: str = None,
     affiliation: str = None,
     email: str = None,
     reason: str = None,
     mailing_list: bool = None,
-    output_dir: Union[str, Path] = None,
     timeout: int = 60,
 ) -> Union[pd.DataFrame, Dict[str, Any], None]:
     """Submits Physical Solar Model v3 Five Minute Temporal Resolution data
         request for given location(s).
 
-        Allowed attributes:
-            air_temperature, clearsky_dhi, clearsky_dni, clearsky_ghi,
-            cloud_type, dew_point, dhi, dni, fill_flag, ghi, relative_humidity,
-            solar_zenith_angle, surface_albedo, surface_pressure,
-            total_precipitable_water, wind_direction, wind_speed
+        Spectral requests generally take ~10 minutes to generate and will
+        likely need to be processed in batch operations.
 
         Allowed names:
             2018, 2019
@@ -598,6 +611,9 @@ def PSM_spectral_request(
             raise ValueError("`tilt` must be between 0 and 90.")
         if not isinstance(angle, (float, int)) or angle > 359.9 or angle < 0:
             raise ValueError("`angle` must be between 0 and 359.9")
+        # Floats seem to get rejected from API request
+        tilt = int(tilt)
+        angle = int(angle)
     else:
         tilt = None
         angle = None
@@ -611,7 +627,6 @@ def PSM_spectral_request(
         names,
         ALLOWED_NAMES,
         False,
-        None,
         api_key,
         full_name,
         affiliation,
@@ -626,4 +641,6 @@ def PSM_spectral_request(
     base_url = URL
 
     response = requests.get(base_url, params=query_params)
-    return _process_response(response, base_url, timeout)
+    return _process_response(
+        response, base_url, timeout=timeout, output_dir=output_dir
+    )
