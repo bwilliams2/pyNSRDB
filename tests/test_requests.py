@@ -28,7 +28,7 @@ poly_location = Polygon(
 
 def teardown_function(function):
     """Prevent timeout of NSRDB API with high rate of requests"""
-    time.sleep(3)
+    time.sleep(5)
 
 
 def test_NSRDB_data_query_wkt():
