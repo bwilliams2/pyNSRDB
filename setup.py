@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="pyNSRDB",
-    version="0.1.0",
+    version="0.1.1",
     author="Bryce Williams",
     author_email="bwilliams2@gmail.com",
     description="Python frontend to NREL NSRDB API.",
