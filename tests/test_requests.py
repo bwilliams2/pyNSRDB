@@ -1,4 +1,5 @@
 import logging
+import time
 
 import pytest
 import pandas as pd
@@ -25,6 +26,11 @@ poly_location = Polygon(
 )
 
 
+def teardown_function(function):
+    """Prevent timeout of NSRDB API with high rate of requests"""
+    time.sleep(3)
+
+
 def test_NSRDB_data_query_wkt():
     location = (-93.1567288182409, 45.15793882400205)
     data = NSRDB_data_query(location)
@@ -48,17 +54,6 @@ def test_NSRDB_data_query_types(query_type):
     assert isinstance(data, dict)
 
 
-#
-#
-# def test_NSRDB_data_address():
-#     address = "1902 Miller Trunk Hwy, Duluth, MN 55811"
-#     data = NSRDB_data_query(address=address)
-#     assert isinstance(data, dict)
-#     # data comes back as array of available datasets
-#     assert isinstance(data["outputs"], list)
-#     assert len(data["outputs"]) > 0
-
-
 def test_PSM_TMY_request():
     location = (-93.1567288182409, 45.15793882400205)
     data = PSM_TMY_request(location)
@@ -70,8 +65,8 @@ def test_PSM_TMY_request_bad_api_key(caplog):
     with caplog.at_level(logging.WARNING):
         data = PSM_TMY_request(location, api_key="NotGoodKey")
     assert "NSRDB request returned an error." in caplog.text
-    assert isinstance(data, str)
-    assert "API" in data
+    assert isinstance(data, dict)
+    assert "An invalid" in data["error"]["message"]
 
 
 def test_PSM_TMY_request_bad_params(caplog):
@@ -80,6 +75,7 @@ def test_PSM_TMY_request_bad_params(caplog):
         data = PSM_TMY_request(location, names="NotReal")
     assert "NSRDB request returned an error." in caplog.text
     assert isinstance(data, dict)
+    assert data["status"] == 400
     assert "errors" in data
 
 
@@ -109,8 +105,8 @@ def test_PSM_request_bad_api_key(caplog):
     with caplog.at_level(logging.WARNING):
         data = PSM_request(location, api_key="NotGoodKey")
     assert "NSRDB request returned an error." in caplog.text
-    assert isinstance(data, str)
-    assert "API" in data
+    assert isinstance(data, dict)
+    assert "An invalid" in data["error"]["message"]
 
 
 def test_PSM_request_bad_params(caplog):

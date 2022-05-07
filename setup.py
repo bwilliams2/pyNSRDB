@@ -1,13 +1,13 @@
 import setuptools
 
-INSTALL_REQUIRES = ["pandas>=1.2", "shapely>=1.6", "python-dotenv"]
+INSTALL_REQUIRES = ["pandas>=1.2", "shapely>=1.6", "python-dotenv", "requests"]
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="pyNSRDB",
-    version="0.0.5",
+    version="0.1.0",
     author="Bryce Williams",
     author_email="bwilliams2@gmail.com",
     description="Python frontend to NREL NSRDB API.",
