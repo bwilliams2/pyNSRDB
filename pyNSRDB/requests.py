@@ -67,7 +67,8 @@ def _parse_query_location(
     return wkt
 
 
-def _assemble_query_params(
+def _handle_request(
+    URL: str,
     location: Union[Tuple[float, float], Point, MultiPoint, Polygon],
     attributes: Optional[Union[str, List[str]]] = None,
     allowed_attributes: Optional[List[str]] = None,
@@ -82,6 +83,7 @@ def _assemble_query_params(
     email: Optional[str] = None,
     reason: Optional[str] = None,
     mailing_list: Optional[bool] = None,
+    timeout: int = 60,
     **kwargs,
 ):
     user_credientials = _get_user_credentials(
@@ -113,7 +115,10 @@ def _assemble_query_params(
 
     query_params = {k: process_bool(v) for k, v in query_params.items()}
 
-    return query_params
+    base_url = _parse_base_url(URL, query_params["wkt"], query_params["names"])
+
+    response = requests.get(base_url, params=query_params)
+    return _process_response(response, base_url, timeout)
 
 
 def _parse_base_url(url: str, wkt: str, names: str):
@@ -265,7 +270,8 @@ def PSM_request(
     URL = "https://developer.nrel.gov/api/nsrdb/v2/solar/psm3-download"
 
     # Assemble params
-    query_params = _assemble_query_params(
+    return _handle_request(
+        URL,
         location,
         attributes,
         ALLOWED_ATTRIBUTES,
@@ -282,12 +288,8 @@ def PSM_request(
         mailing_list,
         leap_day=leap_day,
         interval=interval,
+        timeout=timeout,
     )
-
-    base_url = _parse_base_url(URL, query_params["wkt"], query_params["names"])
-
-    response = requests.get(base_url, params=query_params)
-    return _process_response(response, base_url, timeout)
 
 
 def PSM_TMY_request(
@@ -379,7 +381,8 @@ def PSM_TMY_request(
     URL = "https://developer.nrel.gov/api/nsrdb/v2/solar/psm3-tmy-download"
 
     # Assemble params
-    query_params = _assemble_query_params(
+    return _handle_request(
+        URL,
         location,
         attributes,
         ALLOWED_ATTRIBUTES,
@@ -394,12 +397,8 @@ def PSM_TMY_request(
         email,
         reason,
         mailing_list,
+        timeout=timeout,
     )
-
-    base_url = _parse_base_url(URL, query_params["wkt"], query_params["names"])
-
-    response = requests.get(base_url, params=query_params)
-    return _process_response(response, base_url, timeout)
 
 
 def PSM_temporal_request(
@@ -495,7 +494,8 @@ def PSM_temporal_request(
     URL = "https://developer.nrel.gov/api/nsrdb/v2/solar/psm3-5min-download"
 
     # Assemble params
-    query_params = _assemble_query_params(
+    return _handle_request(
+        URL,
         location,
         attributes,
         ALLOWED_ATTRIBUTES,
@@ -512,9 +512,74 @@ def PSM_temporal_request(
         mailing_list,
         leap_day=leap_day,
         interval=interval,
+        timeout=timeout,
     )
 
-    base_url = _parse_base_url(URL, query_params["wkt"], query_params["names"])
 
-    response = requests.get(base_url, params=query_params)
-    return _process_response(response, base_url, timeout)
+def spectral_data_request(
+    location: Union[Tuple[float, float], Point, MultiPoint, Polygon],
+    attributes: Optional[Union[str, List[str]]] = None,
+    names: Optional[Union[str, int, List[Union[str, int]]]] = None,
+    utc: bool = False,
+    leap_day: bool = False,
+    interval: int = 5,
+    api_key: Optional[str] = None,
+    full_name: Optional[str] = None,
+    affiliation: Optional[str] = None,
+    email: Optional[str] = None,
+    reason: Optional[str] = None,
+    mailing_list: Optional[bool] = None,
+    output_dir: Optional[Union[str, Path]] = None,
+    timeout: int = 60,
+) -> Union[pd.DataFrame, Dict[str, Any], None]:
+    """Submits Physical Solar Model v3 Five Minute Temporal Resolution data
+        request for given location(s).
+
+        Allowed attributes:
+            air_temperature, clearsky_dhi, clearsky_dni, clearsky_ghi,
+            cloud_type, dew_point, dhi, dni, fill_flag, ghi, relative_humidity,
+            solar_zenith_angle, surface_albedo, surface_pressure,
+            total_precipitable_water, wind_direction, wind_speed
+
+        Allowed names:
+            2018, 2019, 2020
+
+    Args:
+        location (Union[Tuple[float, float], Point, MultiPoint, Polygon]):
+            Location to request data for.
+        attributes (Optional[Union[str, List[str]]], optional): Attributes to
+            request data for. Defaults to None.
+        names (Union[str, int, List[Union[str, int]]], optional): Year(s) to
+            request PSM V3 data for. If None, selects most recent year.
+            Defaults to None.
+        utc (bool, optional): If true, convert timestamps to UTC. Defaults to
+            False.
+        leap_day (bool, optional): If true, data includes leap_day.
+        interval (int, optional): Returns 30 or 60 min interval data. Allowed
+            values of 5, 15, 30 and 60. Defaults to 5.
+        api_key (Optional[str], optional): User's api key to send with request.
+            Credential file takes precedence. Defaults to None.
+        full_name (Optional[str], optional): User's full name to send with
+            request. Credential file takes precedence. Defaults to None.
+        affiliation (Optional[str], optional): User's affiliation to send with
+            request. Credential file takes precedence. Defaults to None.
+        email (Optional[str], optional): User's email to send with request.
+            Credential file takes precedence. Defaults to None.
+        reason (Optional[str], optional): Reason for request. Defaults to None.
+        mailing_list (Optional[bool], optional): If True, user is added to NREL
+            NSRDB mailing list. Defaults to None.
+        output_dir (Union[str, List[str]], optional): Output directory to save
+            returned data. Defaults to None.
+        timeout (int): Time to wait for valid download URL. Used only for
+            requests that need file generation. Defaults to 60.
+
+    Returns:
+        Union[pd.DataFrame, Dict[str, Any], str]: If direct download is
+            possible, pandas DataFrame populated with data is returned. In all
+            other cases, response message from NSRDB API is returned
+            as dictionary or string.
+
+    See Also:
+        https://developer.nrel.gov/docs/solar/nsrdb/psm3-5min-download/
+    """
+    pass
